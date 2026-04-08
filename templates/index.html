@@ -98,6 +98,7 @@
       <h1>Cohere ASR Demo</h1>
       <p>Upload an audio file, send it to the transcription pipeline, and save the result into the <code>output/</code> folder.</p>
       <p class="meta">Model: {{ model_id }}</p>
+      <p class="meta">Device: {{ device }} | Max upload: {{ max_upload_mb }} MB</p>
 
       <form id="upload-form">
         <div>
@@ -107,7 +108,7 @@
 
         <div>
           <label for="lang">Language code</label>
-          <input id="lang" name="lang" type="text" value="en">
+          <input id="lang" name="lang" type="text" value="{{ default_language }}">
         </div>
 
         <button type="submit">Transcribe</button>

@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import os
 from pathlib import Path
 import tempfile
 
@@ -8,11 +9,13 @@ from transformers import AutoProcessor, CohereAsrForConditionalGeneration
 from transformers.audio_utils import load_audio
 from werkzeug.utils import secure_filename
 
-MODEL_ID = "CohereLabs/cohere-transcribe-03-2026"
+MODEL_ID = os.environ.get("MODEL_ID", "CohereLabs/cohere-transcribe-03-2026")
 BASE_DIR = Path(__file__).resolve().parent
 AUDIO_DIR = BASE_DIR / "audio"
 OUTPUT_DIR = BASE_DIR / "output"
-DEFAULT_AUDIO_NAME = "output.wav"
+DEFAULT_AUDIO_NAME = os.environ.get("DEFAULT_AUDIO_NAME", "output.wav")
+DEFAULT_LANGUAGE = os.environ.get("DEFAULT_LANGUAGE", "en")
+MAX_UPLOAD_MB = int(os.environ.get("MAX_UPLOAD_MB", "50"))
 USE_CUDA = torch.cuda.is_available()
 DEVICE = torch.device("cuda" if USE_CUDA else "cpu")
 MODEL_DTYPE = torch.float16 if USE_CUDA else torch.float32
@@ -20,6 +23,7 @@ MODEL_DTYPE = torch.float16 if USE_CUDA else torch.float32
 processor = None
 model = None
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
 
 if USE_CUDA:
     torch.backends.cudnn.benchmark = True
@@ -78,7 +82,7 @@ def resolve_audio_path(audio_path: str | None) -> Path:
     return path
 
 
-def transcribe(audio_path: Path, lang: str = "en") -> str:
+def transcribe(audio_path: Path, lang: str = DEFAULT_LANGUAGE) -> str:
     processor, model = get_model()
     audio = load_audio(str(audio_path), sampling_rate=16000)
 
@@ -113,7 +117,7 @@ def build_parser() -> ArgumentParser:
     parser.add_argument(
         "--lang",
         default="en",
-        help="Language code for transcription. Default: en",
+        help=f"Language code for transcription. Default: {DEFAULT_LANGUAGE}",
     )
     parser.add_argument(
         "--web",
@@ -136,13 +140,31 @@ def build_parser() -> ArgumentParser:
 
 @app.get("/")
 def index():
-    return render_template("index.html", model_id=MODEL_ID)
+    return render_template(
+        "index.html",
+        model_id=MODEL_ID,
+        default_language=DEFAULT_LANGUAGE,
+        max_upload_mb=MAX_UPLOAD_MB,
+        device=str(DEVICE),
+    )
+
+
+@app.get("/health")
+def health():
+    return jsonify(
+        {
+            "status": "ok",
+            "model": MODEL_ID,
+            "device": str(DEVICE),
+            "default_language": DEFAULT_LANGUAGE,
+        }
+    )
 
 
 @app.post("/transcribe")
 def transcribe_audio():
     uploaded_file = request.files.get("audio")
-    language = request.form.get("lang", "en")
+    language = request.form.get("lang", DEFAULT_LANGUAGE)
 
     if uploaded_file is None or uploaded_file.filename == "":
         return jsonify({"error": "Please upload an audio file."}), 400
