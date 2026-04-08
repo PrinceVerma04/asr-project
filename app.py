@@ -87,10 +87,15 @@ def transcribe(audio_path: Path, lang: str = DEFAULT_LANGUAGE) -> str:
     audio = load_audio(str(audio_path), sampling_rate=16000)
 
     inputs = processor(audio, sampling_rate=16000, return_tensors="pt", language=lang)
-    inputs = inputs.to(model.device)
+    prepared_inputs = {}
+    for key, value in inputs.items():
+        if hasattr(value, "is_floating_point") and value.is_floating_point():
+            prepared_inputs[key] = value.to(device=model.device, dtype=model.dtype)
+        else:
+            prepared_inputs[key] = value.to(device=model.device)
 
     with torch.inference_mode():
-        outputs = model.generate(**inputs, max_new_tokens=256)
+        outputs = model.generate(**prepared_inputs, max_new_tokens=256)
         text = processor.decode(outputs, skip_special_tokens=True)
     if isinstance(text, list):
         text = text[0]
