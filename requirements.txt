@@ -6,3 +6,4 @@ librosa
 sentencepiece
 protobuf
 flask
+gunicorn

@@ -90,6 +90,33 @@ Available routes:
 - `/transcribe`: audio transcription API
 - `/health`: health check endpoint
 
+## Production Server Run
+
+For a more stable server setup than the Flask development server, use `gunicorn`.
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run on one GPU:
+
+```bash
+export CUDA_VISIBLE_DEVICES=0
+gunicorn --bind 0.0.0.0:5000 --workers 1 --timeout 600 wsgi:app
+```
+
+Notes:
+
+- Use `--workers 1` because the model is large and should stay loaded once per process.
+- Increase `--timeout` for long audio files.
+- Check health with:
+
+```bash
+curl http://127.0.0.1:5000/health
+```
+
 ## Environment Variables
 
 You can customize runtime behavior with:
