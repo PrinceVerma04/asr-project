@@ -22,6 +22,7 @@ Speech-to-text pipeline built around `CohereLabs/cohere-transcribe-03-2026`, wit
 - `output/`: generated transcription files
 - `templates/`: Flask HTML template
 - `hf_endpoint_client.py`: example client for a hosted endpoint
+- `mobile_app/`: Flutter client scaffold for the running backend
 - `requirements.txt`: Python dependencies
 
 ## Requirements
@@ -175,6 +176,8 @@ Recommended flow:
 4. Display and store the result in the app
 
 The included `hf_endpoint_client.py` shows the same request pattern your mobile app can use.
+
+There is also a starter Flutter client in `mobile_app/` for direct backend integration over your local network.
 
 ## Hugging Face Deployment Notes
 
