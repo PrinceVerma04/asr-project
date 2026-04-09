@@ -6,9 +6,13 @@ Simple Flutter client for the ASR backend running on your college server.
 
 - set backend URL
 - choose an audio file from the phone
+- live audio recording
 - send audio to `/transcribe`
 - show transcript response
 - show saved output path returned by the server
+- transcript history cards
+- theme toggle with light, dark, and system modes
+- animated panels and loading states
 
 ## Backend URL
 
@@ -28,10 +32,17 @@ flutter pub get
 flutter run
 ```
 
+## Extra Notes
+
+- The recording feature uses the `record` package.
+- On Android and iOS, microphone permission setup will be required in the platform project files after running Flutter tooling.
+- If you are testing on a physical phone, keep the backend URL pointed to your reachable server IP, for example:
+
+`http://192.168.162.182:5000`
+
 ## Planned Next Steps
 
-- microphone recording
-- transcript history
 - translation selection
-- cleaner loading and retry states
 - Android/iOS platform setup
+- persistent local transcript history
+- share and export actions
