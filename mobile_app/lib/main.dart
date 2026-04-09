@@ -242,7 +242,20 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
   }
 
   Future<http.MultipartFile> _buildMultipartFile(PlatformFile file) async {
-    if (file.path != null && !kIsWeb) {
+    if (kIsWeb) {
+      final bytes = file.bytes;
+      if (bytes == null) {
+        throw Exception('Unable to read the selected file bytes on web.');
+      }
+
+      return http.MultipartFile.fromBytes(
+        'audio',
+        Uint8List.fromList(bytes),
+        filename: file.name,
+      );
+    }
+
+    if (file.path != null) {
       return http.MultipartFile.fromPath(
         'audio',
         file.path!,
@@ -250,16 +263,7 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
       );
     }
 
-    final bytes = file.bytes;
-    if (bytes == null) {
-      throw Exception('Unable to read the selected file bytes on this platform.');
-    }
-
-    return http.MultipartFile.fromBytes(
-      'audio',
-      Uint8List.fromList(bytes),
-      filename: file.name,
-    );
+    throw Exception('Unable to read the selected file on this platform.');
   }
 
   @override
