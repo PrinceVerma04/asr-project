@@ -1,4 +1,8 @@
 # ASR Project
+![WhatsApp Image 2026-04-09 at 1 02 17 PM](https://github.com/user-attachments/assets/8533675f-e75c-4dfe-8911-e30b837a1a40)
+
+![WhatsApp Image 2026-04-09 at 1 02 39 PM](https://github.com/user-attachments/assets/9565e035-cba3-4a89-8860-9a9255b12a90)
+
 
 Speech-to-text pipeline built around `CohereLabs/cohere-transcribe-03-2026`, with:
 
